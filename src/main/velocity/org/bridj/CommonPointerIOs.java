@@ -43,7 +43,7 @@ class CommonPointerIOs {
 		protected Type nativeObjectType;
 		public NativeObjectPointerIO(Type nativeObjectType) {
 			super(nativeObjectType, -1, null);
-			this.nativeObjectType = nativeObjectType;
+			this.nativeObjectType = TypeResolvers.resolveType(nativeObjectType);
 			if (Utils.containsTypeVariables(nativeObjectType))
 			    throw new RuntimeException("Type " + nativeObjectType + " contains unresolved type variables!");
 		}

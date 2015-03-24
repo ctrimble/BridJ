@@ -52,6 +52,8 @@ import java.util.Arrays;
 import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPType;
 
+import com.fasterxml.classmate.ResolvedType;
+
 /**
  * Miscellaneous utility methods.
  *
@@ -169,6 +171,13 @@ public class Utils {
         }
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
+        }
+        if (type instanceof ResolvedType) {
+        	  //try {
+	            return getClass(((ResolvedType)type).getErasedType());
+            /*} catch (ClassNotFoundException e) {
+	            throw new RuntimeException("cannot create class for resolved type name "+((ResolvedType)type).getSignature());
+            }*/
         }
         if (type instanceof GenericArrayType) {
             return (Class<T>) Array.newInstance(getClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();

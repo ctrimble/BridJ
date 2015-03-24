@@ -1,6 +1,7 @@
 package org.bridj;
 
 import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import org.bridj.ann.Field;
 import org.junit.Ignore;
@@ -138,7 +139,10 @@ public class StructsAndGenericsTest {
 	
 	@Test
 	public void shouldCreateStructWithGenericChild() {
+		System.out.println(ParentStructWithValue.class.getSuperclass().getName());
 		Pointer<ParentStructWithValue> pointer = Pointer.allocate(ParentStructWithValue.class);
+		
+		assertThat(pointer, notNullValue());
 	}
 
 }

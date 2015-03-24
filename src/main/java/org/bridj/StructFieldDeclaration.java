@@ -114,7 +114,7 @@ class StructFieldDeclaration {
     protected static StructFieldDeclaration fromField(java.lang.reflect.Field getter) {
         StructFieldDeclaration field = fromMember((Member) getter);
         field.desc.field = getter;
-        field.desc.valueType = getter.getGenericType();
+        field.desc.valueType = TypeResolvers.resolveType(getter.getGenericType());
         field.valueClass = getter.getType();
         return field;
     }

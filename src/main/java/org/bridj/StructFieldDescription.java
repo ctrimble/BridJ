@@ -55,11 +55,19 @@ import org.bridj.cpp.CPPType;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
+import com.fasterxml.classmate.Filter;
+import com.fasterxml.classmate.MemberResolver;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.ResolvedTypeWithMembers;
+import com.fasterxml.classmate.TypeResolver;
+import com.fasterxml.classmate.members.RawMethod;
+import com.fasterxml.classmate.members.ResolvedField;
+import com.fasterxml.classmate.members.ResolvedMethod;
+
 /**
  * Internal metadata on a struct field
  */
 public class StructFieldDescription {
-
     public final List<StructFieldDeclaration> aggregatedFields = new ArrayList<StructFieldDeclaration>();
     public long alignment = -1;
     public long byteOffset = -1, byteLength = -1;
@@ -107,7 +115,7 @@ public class StructFieldDescription {
             } else if (field.valueClass == SizeT.class) {
                 field.desc.byteLength = SizeT.SIZE;
             } else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-                field.desc.nativeTypeOrPointerTargetType = Utils.resolveType(field.desc.valueType, structType);
+                field.desc.nativeTypeOrPointerTargetType = TypeResolvers.resolveType(field.desc, structType);
                 StructDescription desc = StructIO.getInstance(field.valueClass, field.desc.valueType).desc;
                 field.desc.byteLength = desc.getStructSize();
                 if (field.desc.alignment < 0)
@@ -195,7 +203,8 @@ public class StructFieldDescription {
         return aggregatedField;
     }
 
-    void computeBitMask() {
+
+		void computeBitMask() {
         if (bitLength < 0) {
             bitMask = -1;
         } else {
@@ -206,4 +215,6 @@ public class StructFieldDescription {
             bitMask = bitMask << bitOffset;
         }
     }
+    
+
 }

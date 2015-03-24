@@ -25,6 +25,8 @@
 	<properties>
 		<versionSpecificSubPackage>v0_7_0</versionSpecificSubPackage>
 		<maven.compiler.optimize>true</maven.compiler.optimize>
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
 	</properties>
 	<scm>
 		<connection>scm:git:git@github.com:nativelibs4java/BridJ.git</connection>
@@ -77,6 +79,11 @@
 			<artifactId>dx</artifactId>
 			<version>1.7</version>
 		</dependency>
+    <dependency>
+  <groupId>com.fasterxml</groupId>
+  <artifactId>classmate</artifactId>
+  <version>1.1.0</version>
+</dependency>
 	</dependencies>
 	<build>
 		<plugins>
