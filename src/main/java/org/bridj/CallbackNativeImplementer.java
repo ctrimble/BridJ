@@ -37,7 +37,6 @@ import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.RETURN;
-//import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.V1_5;
 
 import java.io.FileNotFoundException;

@@ -125,7 +125,7 @@ class StructUtils {
     }
 
     static long alignmentOf(Type tpe) {
-        Class<?> c = PointerIO.getClass(tpe);
+        Class<?> c = Utils.getClassOrParameterizedRawType(tpe);
         if (StructObject.class.isAssignableFrom(c)) {
             return StructIO.getInstance(c).desc.getStructAlignment();
         }

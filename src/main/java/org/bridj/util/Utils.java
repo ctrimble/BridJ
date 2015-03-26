@@ -47,6 +47,10 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
+
+import org.bridj.cpp.CPPObject;
+import org.bridj.cpp.CPPType;
 
 /**
  * Miscellaneous utility methods.
@@ -55,14 +59,14 @@ import java.nio.ShortBuffer;
  */
 public class Utils {
 
-    public static int getEnclosedConstructorParametersOffset(Constructor c) {
+    public static final int getEnclosedConstructorParametersOffset(final Constructor<?> c) {
         Class<?> enclosingClass = c.getDeclaringClass().getEnclosingClass();
-        Class[] params = c.getParameterTypes();
+        Class<?>[] params = c.getParameterTypes();
         int overrideOffset = params.length > 0 && enclosingClass != null && enclosingClass == params[0] ? 1 : 0;
         return overrideOffset;
     }
 
-    public static boolean isDirect(Buffer b) {
+    public static final boolean isDirect(final Buffer b) {
         if (b instanceof ByteBuffer) {
             return ((ByteBuffer) b).isDirect();
         }
@@ -87,7 +91,7 @@ public class Utils {
         return false;
     }
 
-    public static Object[] takeRight(Object[] array, int n) {
+    public static final Object[] takeRight(final Object[] array, final int n) {
         if (n == array.length) {
             return array;
         } else {
@@ -97,7 +101,7 @@ public class Utils {
         }
     }
 
-    public static Object[] takeLeft(Object[] array, int n) {
+    public static final Object[] takeLeft(final Object[] array, final int n) {
         if (n == array.length) {
             return array;
         } else {
@@ -107,24 +111,24 @@ public class Utils {
         }
     }
 
-    public static boolean isSignedIntegral(Type tpe) {
+    public static final boolean isSignedIntegral(final Type tpe) {
         return tpe == int.class || tpe == Integer.class
                 || tpe == long.class || tpe == Long.class
                 || tpe == short.class || tpe == Short.class
                 || tpe == byte.class || tpe == Byte.class;
     }
 
-    public static String toString(Type t) {
+    public static final String toString(final Type t) {
         if (t == null) {
             return "?";
         }
         if (t instanceof Class) {
-            return ((Class) t).getName();
+            return ((Class<?>) t).getName();
         }
         return t.toString();
     }
 
-    public static String toString(Throwable th) {
+    public static final String toString(final Throwable th) {
         if (th == null)
             return "<no trace>";
         StringWriter sw = new StringWriter();
@@ -133,14 +137,14 @@ public class Utils {
         return sw.toString();
     }
 
-    public static boolean eq(Object a, Object b) {
+    public static final boolean eq(final Object a, final Object b) {
         if ((a == null) != (b == null)) {
             return false;
         }
         return !(a != null && !a.equals(b));
     }
 
-    public static boolean containsTypeVariables(Type type) {
+    public static final boolean containsTypeVariables(final Type type) {
         if (type instanceof TypeVariable) {
             return true;
         }
@@ -155,7 +159,8 @@ public class Utils {
         return false;
     }
 
-    public static <T> Class<T> getClass(Type type) {
+    @SuppressWarnings("unchecked")
+    public static final <T> Class<T> getClass(final Type type) {
         if (type == null) {
             return null;
         }
@@ -166,51 +171,117 @@ public class Utils {
             return getClass(((ParameterizedType) type).getRawType());
         }
         if (type instanceof GenericArrayType) {
-            return (Class) Array.newInstance(getClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
+            return (Class<T>) Array.newInstance(getClass(((GenericArrayType) type).getGenericComponentType()), 0).getClass();
         }
         if (type instanceof WildcardType) {
             return null;
         }
         if (type instanceof TypeVariable) {
-            Type[] bounds = ((TypeVariable) type).getBounds();
+            Type[] bounds = ((TypeVariable<?>) type).getBounds();
             return getClass(bounds[0]);
         }
         throw new UnsupportedOperationException("Cannot infer class from type " + type);
     }
 
-    public static Type getParent(Type type) {
+    // This was in PointerIO.  Should it be the same as Utils.getClass(Type)?  It has
+    // the same functionality, but returns null in more conditions.
+  	public static final Class<?> getClassOrParameterizedRawType(final Type type) {
+  		if (type instanceof Class<?>)
+  			return (Class<?>)type;
+  		if (type instanceof ParameterizedType)
+  			return getClass(((ParameterizedType)type).getRawType());
+  		return null;
+  	}
+  	
+  	public static final boolean isClassOrParameterizedType( final Type type ) {
+  		return type instanceof Class || type instanceof ParameterizedType;
+  	}
+
+    public static final Type getParent(final Type type) {
         if (type instanceof Class) {
-            return ((Class) type).getSuperclass();
+            return ((Class<?>) type).getSuperclass();
         } else // TODO handle templates !!!
         {
             return getParent(getClass(type));
         }
     }
 
-    public static Class[] getClasses(Type[] types) {
+    public static final Class<?>[] getClasses(final Type[] types) {
         int n = types.length;
-        Class[] ret = new Class[n];
+        Class<?>[] ret = new Class[n];
         for (int i = 0; i < n; i++) {
             ret[i] = getClass(types[i]);
         }
         return ret;
     }
 
-    public static Type getUniqueParameterizedTypeParameter(Type type) {
+    public static final Type getUniqueParameterizedTypeParameterOrNull(final Type type) {
         return (type instanceof ParameterizedType) ? ((ParameterizedType) type).getActualTypeArguments()[0] : null;
     }
+    
+    public static final Type getUniqueParameterizedTypeParameter(final Type type) {
+      return ((ParameterizedType) type).getActualTypeArguments()[0];
+  }
 
-    public static boolean parametersComplyToSignature(Object[] values, Class[] parameterTypes) {
+    public static final boolean parametersComplyToSignature(final Object[] values, final Class<?>[] parameterTypes) {
         if (values.length != parameterTypes.length) {
             return false;
         }
         for (int i = 0, n = values.length; i < n; i++) {
             Object value = values[i];
-            Class parameterType = parameterTypes[i];
+            Class<?> parameterType = parameterTypes[i];
             if (!parameterType.isInstance(value)) {
                 return false;
             }
         }
         return true;
     }
+
+		public static final Type resolveType(final Type tpe, final Type structType) {
+		        if (tpe == null || (tpe instanceof WildcardType)) {
+		            return null;
+		        }
+		
+		        Type ret;
+		        if (tpe instanceof ParameterizedType) {
+		            ParameterizedType pt = (ParameterizedType) tpe;
+		            Type[] actualTypeArguments = pt.getActualTypeArguments();
+		            Type[] resolvedActualTypeArguments = new Type[actualTypeArguments.length];
+		            for (int i = 0; i < actualTypeArguments.length; i++) {
+		                resolvedActualTypeArguments[i] = resolveType(actualTypeArguments[i], structType);
+		            }
+		            Type resolvedOwnerType = resolveType(pt.getOwnerType(), structType);
+		            Type rawType = pt.getRawType();
+		            if ((tpe instanceof CPPType) || CPPObject.class.isAssignableFrom(getClass(rawType))) // TODO args
+		            {
+		                ret = new CPPType(resolvedOwnerType, rawType, (Object[])resolvedActualTypeArguments);
+		            } else {
+		                ret = new DefaultParameterizedType(resolvedOwnerType, rawType, resolvedActualTypeArguments);
+		            }
+		        } else if (tpe instanceof TypeVariable) {
+		            TypeVariable<?> tv = (TypeVariable<?>) tpe;
+		            Class<?> structClass = getClass(structType);
+		            TypeVariable<?>[] typeParameters = structClass.getTypeParameters();
+		            int i = Arrays.asList(typeParameters).indexOf(tv);
+		            // TODO recurse on pt.getOwnerType() if i < 0.
+		            if (i >= 0) {
+		                if (structType instanceof ParameterizedType) {
+		                    ParameterizedType pt = (ParameterizedType) structType;
+		                    //Type[] typeParams = CPPRuntime.getTemplateTypeParameters(null, tpe)
+		                    ret = pt.getActualTypeArguments()[i];
+		                } else {
+		                    throw new RuntimeException("Type " + structType + " does not have params, cannot resolve " + tpe);
+		                }
+		            } else {
+		                throw new RuntimeException("Type param " + tpe + " not found in params of " + structType + " (" + Arrays.asList(typeParameters) + ")");
+		            }
+		        } else {
+		            ret = tpe;
+		        }
+		
+		        assert !containsTypeVariables(ret);
+		//            throw new RuntimeException("Type " + ret + " cannot be resolved");
+		
+		        return ret;
+		    }
 }

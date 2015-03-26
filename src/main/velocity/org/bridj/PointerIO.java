@@ -91,14 +91,6 @@ public abstract class PointerIO<T> {
 		return targetType;
 	}
 	
-	static Class<?> getClass(Type type) {
-		if (type instanceof Class<?>)
-			return (Class<?>)type;
-		if (type instanceof ParameterizedType)
-			return getClass(((ParameterizedType)type).getRawType());
-		return null;
-	}
-	
 	private static final PointerIO<?> PointerIO = getPointerInstance((PointerIO<?>)null);
 
 	public static <T> PointerIO<Pointer<T>> getPointerInstance(Type target) {
@@ -154,7 +146,7 @@ public abstract class PointerIO<T> {
 			final Class<?> cl = Utils.getClass(type);
 			if (cl != null) {
 				if (cl == Pointer.class)
-					io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
+					io = getPointerInstance(Utils.getUniqueParameterizedTypeParameter(type));
 				else if (StructObject.class.isAssignableFrom(cl))
 					io = getInstance(StructIO.getInstance((Class)cl, type));
 				else if (Callback.class.isAssignableFrom(cl))
@@ -163,7 +155,7 @@ public abstract class PointerIO<T> {
 					io = new CommonPointerIOs.NativeObjectPointerIO(type);
 				else if (IntValuedEnum.class.isAssignableFrom(cl)) {
 					if (type instanceof ParameterizedType) {
-						Type enumType = ((ParameterizedType)type).getActualTypeArguments()[0];
+						Type enumType = Utils.getUniqueParameterizedTypeParameter(type);
 						if (enumType instanceof Class)
 							io = new CommonPointerIOs.IntValuedEnumPointerIO((Class)enumType);
 					}

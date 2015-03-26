@@ -594,7 +594,7 @@ public abstract class Demangler {
             if (!Pointer.class.isAssignableFrom(typeClass))
                 return false;
 //            return true;
-            Type pointedType = normalize(Utils.getUniqueParameterizedTypeParameter(type));
+            Type pointedType = normalize(Utils.getUniqueParameterizedTypeParameterOrNull(type));
             if (this.pointedType == null || this.pointedType.toString().equals("void"))
                 return pointedType == null;
             if (pointedType == null) {
@@ -911,7 +911,7 @@ public abstract class Demangler {
             }
             String fullName = getFullClassName(
                 ValuedEnum.class.isAssignableFrom(typeClass) ?
-                    normalize(Utils.getUniqueParameterizedTypeParameter(type)) :
+                    normalize(Utils.getUniqueParameterizedTypeParameterOrNull(type)) :
                     typeClass);
             String qname = getQualifiedName(false);
             if (fullName != null && fullName.equals(qname)) {

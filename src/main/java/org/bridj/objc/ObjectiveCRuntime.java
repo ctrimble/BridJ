@@ -309,8 +309,8 @@ public class ObjectiveCRuntime extends CRuntime {
 
         Type p = blockClass.getGenericSuperclass();
         if (Utils.getClass(p) == (Class) ObjCBlock.class) {
-            Type callbackType = Utils.getUniqueParameterizedTypeParameter(p);
-            if (callbackType == null || !(callbackType instanceof Class || callbackType instanceof ParameterizedType)) {
+            Type callbackType = Utils.getUniqueParameterizedTypeParameterOrNull(p);
+            if (callbackType == null || !Utils.isClassOrParameterizedType(callbackType)) {
                 throw new RuntimeException("Class " + blockClass.getName() + " should inherit from " + ObjCBlock.class.getName() + " with a valid single type parameter (found " + Utils.toString(p) + ")");
             }
 

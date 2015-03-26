@@ -31,6 +31,7 @@
 package org.bridj;
 
 import static org.bridj.util.Utils.getUniqueParameterizedTypeParameter;
+import static org.bridj.util.Utils.getUniqueParameterizedTypeParameterOrNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
@@ -79,7 +80,7 @@ interface CallIO {
         @SuppressWarnings("unchecked")
         public static CallIO createPointerCallIO(Class<?> cl, Type type) {
             if (cl == Pointer.class) {
-                return createPointerCallIOToTargetType(getUniqueParameterizedTypeParameter(type));
+                return createPointerCallIOToTargetType(getUniqueParameterizedTypeParameterOrNull(type));
             }
 
             assert TypedPointer.class.isAssignableFrom(cl);

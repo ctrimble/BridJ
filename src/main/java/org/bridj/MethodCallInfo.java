@@ -438,7 +438,7 @@ public class MethodCallInfo {
         if (ValuedEnum.class.isAssignableFrom(c)) {
             direct = false;
             @SuppressWarnings({ "rawtypes" })
-            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class)Utils.getClass(Utils.getUniqueParameterizedTypeParameter(t)));
+            CallIO cio = CallIO.Utils.createValuedEnumCallIO((Class) Utils.getClass(Utils.getUniqueParameterizedTypeParameterOrNull(t)));
             if (BridJ.veryVerbose) {
                 BridJ.info("CallIO : " + cio);
             }
